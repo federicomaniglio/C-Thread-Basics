@@ -5,40 +5,21 @@
 using namespace std;
 using namespace std::chrono;
 
-void contaPari(int finalNumber){
-    int contatore = 0;
-    for (int i = 0; i < finalNumber; ++i) {
-        if(!(i%2))
-            contatore++;
-    }
-    cout << contatore <<endl;
+void run(int count) {
+    while (count-- > 0)
+        cout << "Prof. Maniglio" << endl;
+    this_thread::sleep_for(seconds(3));
 }
-void contaDispari(int finalNumber){
-    int contatore = 0;
-    for (int i = 0; i < finalNumber; ++i) {
-        if(i%2)
-            contatore++;
-    }
-    cout << contatore <<endl;
-}
-
 
 
 int main() {
 
-    auto startTime = high_resolution_clock::now();
+    cout << "Inizio" << endl;
+    thread worker(run, 5);
+    worker.join();
+    //e se metto due join?
+    cout << "Fine" << endl;
 
-    int numero = 2000000000;
-    thread t1(contaPari, numero);
-    thread t2(contaDispari, numero);
-
-    t1.join();
-    t2.join();
-
-    auto endTime = high_resolution_clock::now();
-    auto duration = duration_cast<microseconds>(endTime - startTime);
-
-    cout << duration.count()/1000000 << endl;
 
     return 0;
 }
