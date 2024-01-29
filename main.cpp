@@ -13,12 +13,11 @@ void run(int count) {
 
 
 int main() {
-
-    cout << "Inizio" << endl;
+    //fai partire più volte, come cambia il risultato?
     thread worker(run, 5);
-    worker.join();
-    if(worker.joinable())
-        worker.join();
+    cout << "Inizio" << endl;
+    worker.detach();
+    //esiste il detachable?
     cout << "Fine" << endl;
 
 
