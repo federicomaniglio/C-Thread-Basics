@@ -29,8 +29,11 @@ int main() {
     auto startTime = high_resolution_clock::now();
 
     int numero = 2000000000;
-    contaPari(numero);
-    contaDispari(numero);
+    thread t1(contaPari, numero);
+    thread t2(contaDispari, numero);
+
+    t1.join();
+    t2.join();
 
     auto endTime = high_resolution_clock::now();
     auto duration = duration_cast<microseconds>(endTime - startTime);
