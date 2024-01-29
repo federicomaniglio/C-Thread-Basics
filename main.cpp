@@ -17,7 +17,8 @@ int main() {
     cout << "Inizio" << endl;
     thread worker(run, 5);
     worker.join();
-    //e se metto due join?
+    if(worker.joinable())
+        worker.join();
     cout << "Fine" << endl;
 
 
