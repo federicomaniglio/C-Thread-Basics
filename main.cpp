@@ -1,38 +1,42 @@
 #include <iostream>
 #include <thread>
 #include <mutex>
+#include <condition_variable>
+#include <string>
 
 using namespace std;
 
-mutex ml;
-int buffer = 0;
+mutex mtx;
+condition_variable cv;
+bool ready = false;
+string msg;
 
-//gestisce più tipologie di mutex (es. timed mutex)
-//consente di acquisire e rilasciare il mutex nello stesso scope
+void writerThread() {
+    this_thread::sleep_for(chrono::seconds(2));
+    lock_guard<mutex> lock(mtx);
+    msg = "Hello from writer!";
+    ready = true;
+    cv.notify_one();
+}
 
-//Locking Strategies
-//TYPE              EFFECTS(S)
-//1. defer_lock     do not acquire ownership of the mutex.
-//2. try_to_lock    try to acquire ownership of the mutex without blocking.
-//3. adopt_lock     assume the calling thread already has ownership of the mutex.
+//Acquisizione di un Mutex: Prima di utilizzare una condition variable, è necessario acquisire un mutex
+//
+//Controllo di una Condizione: verifica una determinata condizione.
+//      Se la condizione non è soddisfatta, il thread rilascia il mutex e si blocca
+//
+//Attesa e Sblocco del Mutex: Il thread si blocca fino a quando non riceve una notifica
+//          il thread riacquista il mutex e riprende l'esecuzione se la condizione è soddisfatta
 
-
-
-
-void task(string threadNumber, int loopFor) {
-    unique_lock<mutex> lock(ml, defer_lock);
-    lock.lock();
-    for (int i = 0; i < loopFor; ++i) {
-        buffer++;
-        cout << threadNumber << buffer << endl;
-    }
+void readerThread() {
+    unique_lock<mutex> lock(mtx);
+    cv.wait(lock, [] { return ready; });
+    cout << "Message received: " << msg << endl;
 }
 
 int main() {
-    thread t1(task, "TO ", 10);
-    thread t2(task, "T1 ", 10);
-    t1.join();
-    t2.join();
+    thread writer(writerThread);
+    thread reader(readerThread);
+    writer.join();
+    reader.join();
     return 0;
 }
-
