@@ -1,33 +1,27 @@
 #include <iostream>
 #include <thread>
 #include <mutex>
-#include <chrono>
 
 using namespace std;
 
-int contatore = 0;
-int contatoreLock = 0;
+mutex ml;
+int buffer = 0;
 
-// cambia il tipo di oggi
-timed_mutex m;
-
-void incrementa(int numThread) {
-    auto now = chrono::steady_clock::now();
-        if(m.try_lock_until(now + chrono::seconds(1))) {
-            contatore++;
-            this_thread::sleep_for(chrono::seconds(2));
-            cout << "Thread " << numThread << " entrato" <<endl;
-            m.unlock();
-        } else
-            cout << "Thread " << numThread << " non entrato" <<endl;
+void task(string threadNumber, int loopFor) {
+    ml.lock();
+    for (int i = 0; i < loopFor; ++i) {
+        buffer++;
+        cout << threadNumber << buffer << endl;
+    }
+    ml.unlock();
 
 }
 
 int main() {
-    thread worker1(incrementa, 1);
-    thread worker2(incrementa, 2);
-    worker1.join();
-    worker2.join();
-    cout << contatore << endl;
+    thread t1(task, "TO ", 10);
+    thread t2(task, "T1 ", 10);
+    t1.join();
+    t2.join();
     return 0;
 }
+
