@@ -8,13 +8,11 @@ mutex ml;
 int buffer = 0;
 
 void task(string threadNumber, int loopFor) {
-    ml.lock();
+    lock_guard<mutex> lock(ml);
     for (int i = 0; i < loopFor; ++i) {
         buffer++;
         cout << threadNumber << buffer << endl;
     }
-    ml.unlock();
-
 }
 
 int main() {
