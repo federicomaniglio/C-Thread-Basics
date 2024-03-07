@@ -20,7 +20,8 @@ int buffer = 0;
 
 
 void task(string threadNumber, int loopFor) {
-    unique_lock<mutex> lock(ml);
+    unique_lock<mutex> lock(ml, defer_lock);
+    lock.lock();
     for (int i = 0; i < loopFor; ++i) {
         buffer++;
         cout << threadNumber << buffer << endl;
