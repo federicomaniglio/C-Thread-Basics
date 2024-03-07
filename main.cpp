@@ -12,7 +12,8 @@ int contatoreLock = 0;
 timed_mutex m;
 
 void incrementa(int numThread) {
-        if(m.try_lock_for(chrono::seconds(1))) {
+    auto now = chrono::steady_clock::now();
+        if(m.try_lock_until(now + chrono::seconds(1))) {
             contatore++;
             this_thread::sleep_for(chrono::seconds(2));
             cout << "Thread " << numThread << " entrato" <<endl;
