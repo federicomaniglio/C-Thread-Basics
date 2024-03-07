@@ -7,8 +7,20 @@ using namespace std;
 mutex ml;
 int buffer = 0;
 
+//gestisce più tipologie di mutex (es. timed mutex)
+//consente di acquisire e rilasciare il mutex nello stesso scope
+
+//Locking Strategies
+//TYPE              EFFECTS(S)
+//1. defer_lock     do not acquire ownership of the mutex.
+//2. try_to_lock    try to acquire ownership of the mutex without blocking.
+//3. adopt_lock     assume the calling thread already has ownership of the mutex.
+
+
+
+
 void task(string threadNumber, int loopFor) {
-    lock_guard<mutex> lock(ml);
+    unique_lock<mutex> lock(ml);
     for (int i = 0; i < loopFor; ++i) {
         buffer++;
         cout << threadNumber << buffer << endl;
