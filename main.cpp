@@ -2,41 +2,44 @@
 #include <thread>
 #include <mutex>
 #include <condition_variable>
-#include <string>
+#include <cstdlib>
 
 using namespace std;
 
-mutex mtx;
-condition_variable cv;
-bool ready = false;
-string msg;
+std::condition_variable cv;
+std::mutex m;
+long saldo = 0;
 
-void writerThread() {
+void aggiungiSoldi(int soldi) {
     this_thread::sleep_for(chrono::seconds(2));
-    lock_guard<mutex> lock(mtx);
-    msg = "Hello from writer!";
-    ready = true;
+    std::lock_guard<mutex> lg(m);
+    saldo += soldi;
+    cout << "Aggiunto " << soldi << " Saldo attuale: " << saldo << endl;
     cv.notify_one();
 }
 
-//Acquisizione di un Mutex: Prima di utilizzare una condition variable, è necessario acquisire un mutex
-//
-//Controllo di una Condizione: verifica una determinata condizione.
-//      Se la condizione non è soddisfatta, il thread rilascia il mutex e si blocca
-//
-//Attesa e Sblocco del Mutex: Il thread si blocca fino a quando non riceve una notifica
-//          il thread riacquista il mutex e riprende l'esecuzione se la condizione è soddisfatta
+void prelevaSoldi(int soldi) {
+    std::unique_lock<mutex> ul(m);
+    cv.wait(ul, [soldi] {
+        if ((saldo - soldi) >= 0)
+            return true;
+        else {
+            cout << "Non è possibile dedurre l'importo, il saldo attuale è inferiore a " << soldi << endl;
+            return false;
+        }
+    });
 
-void readerThread() {
-    unique_lock<mutex> lock(mtx);
-    cv.wait(lock, [] { return ready; });
-    cout << "Message received: " << msg << endl;
+    saldo -= soldi;
+    cout << "Importo dedotto: " << soldi << " Il saldo attuale è: " << saldo << endl;
 }
 
 int main() {
-    thread writer(writerThread);
-    thread reader(readerThread);
-    writer.join();
-    reader.join();
+    srand(time(NULL));
+    thread t1(prelevaSoldi, rand() % 500 + 1);
+    thread t2(aggiungiSoldi, rand() % 500 + 1);
+
+    t1.join();
+    t2.join();
+
     return 0;
 }
