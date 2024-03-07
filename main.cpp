@@ -1,35 +1,32 @@
 #include <iostream>
 #include <thread>
 #include <mutex>
-#include <chrono>
 
 using namespace std;
-using namespace std::chrono;
 
-int fotoscattate = 0;
+int contatore = 0;
+int contatoreLock = 0;
+
 mutex m;
 
-//Race condition
-void cabinaFotografica(string nome) {
-    m.lock();
-    cout << nome + " entra per farsi una foto" << endl;
-    this_thread::sleep_for(milliseconds(500));
-    cout << nome + " si scatta una foto" << endl;
-    fotoscattate++;
-    this_thread::sleep_for(milliseconds(500));
-    cout << nome + " esce dalla cabina" << endl;
-    cout << "Foto scattate: " << fotoscattate << endl;
-    m.unlock();
+void incrementa() {
+    for (int i = 0; i < 100000; ++i) {
+        if(m.try_lock()) {
+            contatore++;
+            m.unlock();
+        } else
+            contatoreLock++;
+    }
 }
 
-
 int main() {
-
-    thread worker1(cabinaFotografica, "Alice");
-    thread worker2(cabinaFotografica, "Bob");
-
+    thread worker1(incrementa);
+    thread worker2(incrementa);
     worker1.join();
     worker2.join();
+    cout << contatore << endl;
+    cout << contatoreLock << endl;
+    cout << contatore + contatoreLock << endl;
 
     return 0;
 }
