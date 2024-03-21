@@ -7,25 +7,24 @@
 
 using namespace std;
 
-void calcolaPari(promise<long long>& valorePromesso, long long fine){
-    long long numeriPari=0;
+long long calcolaPari(long long fine) {
+    cout << this_thread::get_id() << endl;
+    long long numeriPari = 0;
     for (long long i = 0; i < fine; ++i) {
-        if(!(i%2))
+        if (!(i % 2))
             numeriPari++;
     }
-    valorePromesso.set_value(numeriPari);
+    return numeriPari;
 }
 
 
 int main() {
+    cout << this_thread::get_id() << endl;
+    future<long long> valoreFuturo = async(launch::deferred, calcolaPari, 9000000000);
 
-    promise<long long> valorePromesso;
-    future<long long> valoreFuturo = valorePromesso.get_future();
+    cout << "Calcolo in corso..." << endl;
+    cout << "Numeri pari: " << valoreFuturo.get() << endl;
 
-    thread t(calcolaPari, ref(valorePromesso), 9000000000);
-    cout<<"Calcolo in corso..."<<endl;
-    cout<< "Numeri pari: " << valoreFuturo.get()<<endl;
-    t.join();
 
     return 0;
 }
