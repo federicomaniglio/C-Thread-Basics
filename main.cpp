@@ -20,7 +20,7 @@ long long calcolaPari(long long fine) {
 
 int main() {
     cout << this_thread::get_id() << endl;
-    future<long long> valoreFuturo = async(launch::deferred, calcolaPari, 9000000000);
+    future<long long> valoreFuturo = async(launch::async, calcolaPari, 9000000000);
 
     cout << "Calcolo in corso..." << endl;
     cout << "Numeri pari: " << valoreFuturo.get() << endl;
