@@ -1,1 +1,1 @@
-# C-Thread-Basics
+# C++ Thread Basics
